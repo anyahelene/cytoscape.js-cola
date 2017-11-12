@@ -391,7 +391,7 @@ SOFTWARE.
 
       // add compound nodes to cola
       adaptor.groups( nodes.stdFilter(function( node ){
-        return node.isParent();
+        return node.isParent() && edge.style()['display'] != "none";
       }).map(function( node, i ){ // add basic group incl leaf nodes
         var optPadding = getOptVal( options.nodeSpacing, node );
         var getPadding = function(d){
@@ -453,7 +453,7 @@ SOFTWARE.
 
       // add the edges to cola
       adaptor.links( edges.stdFilter(function( edge ){
-        return !edge.source().isParent() && !edge.target().isParent();
+        return !edge.source().isParent() && !edge.target().isParent() && edge.style()['display'] != "none";
       }).map(function( edge, i ){
         var c = edge.scratch().cola = {
           source: edge.source()[0].scratch().cola.index,
