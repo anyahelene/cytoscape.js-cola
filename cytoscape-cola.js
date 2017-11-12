@@ -54,6 +54,8 @@ SOFTWARE.
       flow: undefined, // use DAG/tree flow layout if specified, e.g. { axis: 'y', minSeparation: 30 }
       alignment: undefined, // relative alignment constraints on nodes, e.g. function( node ){ return { x: 0, y: 1 } }
 
+      edgeFilter: undefined, // which edges should be included in the layout, e.g. function ( edge ) { return true; }
+
       // different methods of specifying edge length
       // each can be a constant numerical value or a function like `function( edge ){ return 2; }`
       edgeLength: undefined, // sets edge length directly in simulation
@@ -451,9 +453,14 @@ SOFTWARE.
         return link.calcLength;
       };
 
+      var edgeFilter = function( edge ) { return true; };
+      if( typeof options.edgeFilter === typeoffn ){
+          edgeFilter = options.edgeFilter;
+      }
+
       // add the edges to cola
       adaptor.links( edges.stdFilter(function( edge ){
-        return !edge.source().isParent() && !edge.target().isParent() && edge.style()['display'] != "none";
+        return edgeFilter(edge) && !edge.source().isParent() && !edge.target().isParent() && edge.style()['display'] != "none";
       }).map(function( edge, i ){
         var c = edge.scratch().cola = {
           source: edge.source()[0].scratch().cola.index,
