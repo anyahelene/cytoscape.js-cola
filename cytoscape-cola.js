@@ -54,6 +54,7 @@ SOFTWARE.
       flow: undefined, // use DAG/tree flow layout if specified, e.g. { axis: 'y', minSeparation: 30 }
       alignment: undefined, // relative alignment constraints on nodes, e.g. function( node ){ return { x: 0, y: 1 } }
 
+      constraints: undefined, // set of additional constraints on nodes, e.g. [{ axis: x, left: nodes[0], right: nodes[1], gap: 25}, ...]
       edgeFilter: undefined, // which edges should be included in the layout, e.g. function ( edge ) { return true; }
 
       // different methods of specifying edge length
@@ -341,6 +342,8 @@ SOFTWARE.
         return struct;
       }) );
 
+      var constraints = [];
+
       if( options.alignment ){ // then set alignment constraints
 
         var offsetsX = [];
@@ -369,8 +372,6 @@ SOFTWARE.
         });
 
         // add alignment constraints on nodes
-        var constraints = [];
-
         if( offsetsX.length > 0 ){
           constraints.push({
             type: 'alignment',
@@ -387,9 +388,27 @@ SOFTWARE.
           });
         }
 
-        adaptor.constraints( constraints );
-
       }
+
+      if( options.constraints ) {
+    	  options.constraints.forEach(function(cons) {
+    		  var left = cons.left;
+    		  var right = cons.right;
+    		  if(left.style('display') == 'element' && right.style('display') == 'element') {
+    			  var leftIdx = left.scratch('cola').index;
+    			  var rightIdx = right.scratch('cola').index;
+    			  if(leftIdx != undefined && rightIdx != undefined) {
+    				  constraints.push({axis: cons.axis, left: leftIdx, right: rightIdx, gap: cons.gap});
+    			  }
+    			  else {
+    				  console.log("Constraint involves nodes not in set: " + cons);
+    			  }
+    		  }
+    	  });
+      }
+      
+   	  adaptor.constraints( constraints );
+
 
       // add compound nodes to cola
       adaptor.groups( nodes.stdFilter(function( node ){
